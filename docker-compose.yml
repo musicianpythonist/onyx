@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - CLIENT_DB_SERVER=db
+      - CLIENT_DB_PORT=1433
+      - CLIENT_DB_USER=sa
+      - CLIENT_DB_PASSWORD=YourStrong!Passw0rd
+      - CLIENT_DB_NAME=Clients-Microservice
+    depends_on:
+      - db
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sql-server
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserverdata:/var/opt/mssql
+
+volumes:
+  sqlserverdata:
+    driver: local

@@ -1,0 +1,152 @@
+definitions:
+  controllers.LoginRequest:
+    properties:
+      api_key:
+        description: Example added for Swagger
+        example: my_secure_api_key
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is the API for fetching client and KYC request data
+  title: Client and KYCRequest API
+  version: "1.0"
+paths:
+  /api/clients/kyc:
+    get:
+      description: Get KYC-completed clients by day, week, or month
+      parameters:
+      - description: Range (day, week, month)
+        in: query
+        name: range
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid or expired token
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get KYC-completed clients
+      tags:
+      - Clients
+  /api/clients/new:
+    get:
+      description: Get new clients by day, week, or month
+      parameters:
+      - description: Range (day, week, month)
+        in: query
+        name: range
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid or expired token
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get new clients
+      tags:
+      - Clients
+  /api/kycrequest/submitted:
+    get:
+      description: Get submitted KYC requests (status 5) by day, week, or month
+      parameters:
+      - description: Range (day, week, month)
+        in: query
+        name: range
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get submitted KYC requests
+      tags:
+      - KYCRequest
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Validates the API key and returns a JWT token for authentication
+      parameters:
+      - description: API key for login
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid API key
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to generate token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logs in with an API key and returns a JWT token
+      tags:
+      - Authentication
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
