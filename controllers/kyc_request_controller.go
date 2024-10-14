@@ -3,43 +3,45 @@ package controllers
 import (
 	"client/services"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-// KYCRequestController defines the KYC request controller
+// KYCRequestController handles KYC request-related actions
 type KYCRequestController struct {
 	kycRequestService services.KYCRequestService
 }
 
-// NewKYCRequestController initializes a new KYCRequestController
-func NewKYCRequestController(kycRequestService services.KYCRequestService) *KYCRequestController {
-	return &KYCRequestController{kycRequestService: kycRequestService}
+func NewKYCRequestController(service services.KYCRequestService) *KYCRequestController {
+	return &KYCRequestController{kycRequestService: service}
 }
 
-// GetKYCRequestsByRange handles the request to get KYC requests with a given status and date range
-// @Summary Get submitted KYC requests
-// @Description Get submitted KYC requests (status 5) by day, week, or month
-// @Tags KYCRequest
-// @Security ApiKeyAuth
-// @Param range query string true "Range (day, week, month)"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{} "error"
-// @Failure 401 {object} map[string]interface{} "Unauthorized"
-// @Router /api/kycrequest/submitted [get]
-func (ctrl *KYCRequestController) GetKYCRequestsByRange(c *gin.Context) {
-	dateRange := c.Query("range")
-	if dateRange == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "query param 'range' is required"})
-		return
-	}
-
-	status := uint8(5) // Status 5 is for submitted KYC requests
-	count, err := ctrl.kycRequestService.GetKYCRequestsByRangeAndStatus(status, dateRange)
+// GetKYCRequestsByRange returns KYC requests filtered by statusId and date range
+// @Summary Get KYC requests
+// @Description Returns the number of KYC requests with a specific status (e.g., submitted) for the given date range (day, week, month)
+// @Tags KYC Requests
+// @Produce json
+// @Param status_id query int true "Status ID of the KYC request"
+// @Param date_range query string true "Date Range (day, week, month)"
+// @Success 200 {object} dto.KYCRequestsRangeResponseDTO
+// @Failure 400 {object} map[string]string "Invalid status ID or date range"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/kyc/request [get] // Updated route path in the Swagger annotation
+func (c *KYCRequestController) GetKYCRequestsByRange(ctx *gin.Context) {
+	statusIdParam := ctx.Query("status_id")
+	statusId, err := strconv.Atoi(statusIdParam)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status ID"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"count": count, "status": status, "range": dateRange})
+	dateRange := ctx.Query("date_range")
+	result, err := c.kycRequestService.GetKYCRequestsByRange(statusId, dateRange)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, result)
 }

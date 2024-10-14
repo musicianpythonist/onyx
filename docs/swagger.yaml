@@ -6,42 +6,28 @@ definitions:
         example: my_secure_api_key
         type: string
     type: object
+  dto.KYCRequestsDayResponseDTO:
+    properties:
+      count:
+        type: integer
+      date:
+        type: string
+    type: object
+  dto.KYCRequestsRangeResponseDTO:
+    properties:
+      kyc_requests:
+        items:
+          $ref: '#/definitions/dto.KYCRequestsDayResponseDTO'
+        type: array
+      range:
+        type: string
+    type: object
 info:
   contact: {}
   description: This is the API for fetching client and KYC request data
   title: Client and KYCRequest API
   version: "1.0"
 paths:
-  /api/clients/kyc:
-    get:
-      description: Get KYC-completed clients by day, week, or month
-      parameters:
-      - description: Range (day, week, month)
-        in: query
-        name: range
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: error
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Invalid or expired token
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Get KYC-completed clients
-      tags:
-      - Clients
   /api/clients/new:
     get:
       description: Get new clients by day, week, or month
@@ -72,36 +58,43 @@ paths:
       summary: Get new clients
       tags:
       - Clients
-  /api/kycrequest/submitted:
+  /api/kyc/request:
     get:
-      description: Get submitted KYC requests (status 5) by day, week, or month
+      description: Returns the number of KYC requests with a specific status (e.g.,
+        submitted) for the given date range (day, week, month)
       parameters:
-      - description: Range (day, week, month)
+      - description: Status ID of the KYC request
         in: query
-        name: range
+        name: status_id
+        required: true
+        type: integer
+      - description: Date Range (day, week, month)
+        in: query
+        name: date_range
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/dto.KYCRequestsRangeResponseDTO'
         "400":
-          description: error
+          description: Invalid status ID or date range
           schema:
-            additionalProperties: true
+            additionalProperties:
+              type: string
             type: object
-        "401":
-          description: Unauthorized
+        "500":
+          description: Internal server error
           schema:
-            additionalProperties: true
+            additionalProperties:
+              type: string
             type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Get submitted KYC requests
+      summary: Get KYC requests
       tags:
-      - KYCRequest
+      - KYC Requests
   /api/login:
     post:
       consumes:

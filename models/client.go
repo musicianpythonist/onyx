@@ -5,14 +5,14 @@ import "time"
 // Client represents the Client table in the database
 type Client struct {
 	ID           uint      `gorm:"primaryKey" json:"id"`
-	ClientTypeId int       `json:"client_type_id"`
-	FirstName    string    `json:"first_name"`
-	LastName     string    `json:"last_name"`
-	CardNumber   string    `json:"card_number"`
-	CardPassword string    `json:"card_password"`
-	NationalCode string    `json:"national_code"`
-	Code         string    `json:"code"`
-	CreateDate   time.Time `json:"create_date"`
+	ClientTypeId int       `gorm:"column:ClientTypeId" json:"client_type_id"`
+	FirstName    string    `gorm:"column:FirstName" json:"first_name"`
+	LastName     string    `gorm:"column:LastName" json:"last_name"`
+	CardNumber   string    `gorm:"column:CardNumber" json:"card_number"`
+	CardPassword string    `gorm:"column:CardPassword" json:"card_password"`
+	NationalCode string    `gorm:"column:NationalCode" json:"national_code"`
+	Code         string    `gorm:"column:Code" json:"code"`
+	CreateDate   time.Time `gorm:"column:CreateDate" json:"create_date"`
 }
 
 // TableName sets the insert table name for this struct type

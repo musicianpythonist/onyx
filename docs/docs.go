@@ -15,52 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/clients/kyc": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get KYC-completed clients by day, week, or month",
-                "tags": [
-                    "Clients"
-                ],
-                "summary": "Get KYC-completed clients",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Range (day, week, month)",
-                        "name": "range",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Invalid or expired token",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/api/clients/new": {
             "get": {
                 "security": [
@@ -107,23 +61,28 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/kycrequest/submitted": {
+        "/api/kyc/request": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
+                "description": "Returns the number of KYC requests with a specific status (e.g., submitted) for the given date range (day, week, month)",
+                "produces": [
+                    "application/json"
                 ],
-                "description": "Get submitted KYC requests (status 5) by day, week, or month",
                 "tags": [
-                    "KYCRequest"
+                    "KYC Requests"
                 ],
-                "summary": "Get submitted KYC requests",
+                "summary": "Get KYC requests",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Status ID of the KYC request",
+                        "name": "status_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "type": "string",
-                        "description": "Range (day, week, month)",
-                        "name": "range",
+                        "description": "Date Range (day, week, month)",
+                        "name": "date_range",
                         "in": "query",
                         "required": true
                     }
@@ -132,22 +91,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/dto.KYCRequestsRangeResponseDTO"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Invalid status ID or date range",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -226,6 +188,31 @@ const docTemplate = `{
                     "description": "Example added for Swagger",
                     "type": "string",
                     "example": "my_secure_api_key"
+                }
+            }
+        },
+        "dto.KYCRequestsDayResponseDTO": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.KYCRequestsRangeResponseDTO": {
+            "type": "object",
+            "properties": {
+                "kyc_requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.KYCRequestsDayResponseDTO"
+                    }
+                },
+                "range": {
+                    "type": "string"
                 }
             }
         }

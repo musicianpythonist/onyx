@@ -2,25 +2,18 @@ package models
 
 import "time"
 
-// KYCRequest represents the KYCRequest table
+// KYCRequest represents a KYC request in the database
 type KYCRequest struct {
-	ID                 uint      `gorm:"primaryKey" json:"id"`
-	ClientId           uint      `json:"client_id"`
-	RequesterClientId  uint      `json:"requester_client_id"`
-	Code               string    `json:"code"`
-	MobileNumber       string    `json:"mobile_number"`
-	CreateDate         time.Time `json:"create_date"`
-	KYCRequestStatusId uint8     `json:"kyc_request_status_id"`
+	ID                 int64     `gorm:"primaryKey;column:Id"`
+	ClientID           int64     `gorm:"column:ClientId"`
+	RequesterClientID  int64     `gorm:"column:RequesterClientId"`
+	Code               string    `gorm:"column:Code"`
+	MobileNumber       string    `gorm:"column:MobileNumber"`
+	CreateDate         time.Time `gorm:"column:CreateDate"`
+	KYCRequestStatusID int8      `gorm:"column:KYCRequestStatusId"`
 }
 
-// KYCRequestStatus represents the KYCRequestStatus table
-type KYCRequestStatus struct {
-	ID    uint8  `gorm:"primaryKey" json:"id"`
-	Title string `json:"title"`
-	Name  string `json:"name"`
-}
-
-// TableName sets the insert table name for this struct type
+// TableName sets the default table name for GORM
 func (KYCRequest) TableName() string {
-	return "KYCRequest" // Set the correct table name here
+	return "KYCRequest"
 }
