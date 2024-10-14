@@ -15,6 +15,59 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/ServiceProvider/SuccessfulConsentRatioController": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get successful consent ratios by day, week, or month",
+                "tags": [
+                    "ServiceProvider"
+                ],
+                "summary": "Get successful consent ratios",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Range (day, week, month)",
+                        "name": "range",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/clients/new": {
             "get": {
                 "security": [
@@ -232,8 +285,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Client and KYCRequest API",
-	Description:      "This is the API for fetching client and KYC request data",
+	Title:            "Client, KYCRequest, and ServiceProvider API",
+	Description:      "This is the API for fetching client, KYC request, and ServiceProvider consent ratio data",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

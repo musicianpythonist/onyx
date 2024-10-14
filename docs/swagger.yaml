@@ -24,10 +24,46 @@ definitions:
     type: object
 info:
   contact: {}
-  description: This is the API for fetching client and KYC request data
-  title: Client and KYCRequest API
+  description: This is the API for fetching client, KYC request, and ServiceProvider
+    consent ratio data
+  title: Client, KYCRequest, and ServiceProvider API
   version: "1.0"
 paths:
+  /api/ServiceProvider/SuccessfulConsentRatioController:
+    get:
+      description: Get successful consent ratios by day, week, or month
+      parameters:
+      - description: Range (day, week, month)
+        in: query
+        name: range
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid or expired token
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get successful consent ratios
+      tags:
+      - ServiceProvider
   /api/clients/new:
     get:
       description: Get new clients by day, week, or month

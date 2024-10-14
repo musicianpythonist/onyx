@@ -14,9 +14,9 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
-// @title Client and KYCRequest API
+// @title Client, KYCRequest, and ServiceProvider API
 // @version 1.0
-// @description This is the API for fetching client and KYC request data
+// @description This is the API for fetching client, KYC request, and ServiceProvider consent ratio data
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
@@ -52,6 +52,14 @@ func main() {
 	// Register KYC request routes
 	routes.RegisterKYCRequestRoutes(r, kycRequestController)
 
-	// Start the server
+	// Initialize the repository, service, and controller for successful consent ratio
+	successfulConsentRepo := repositories.NewSuccessfulConsentRatioRepository(db)
+	successfulConsentService := services.NewSuccessfulConsentRatioService(successfulConsentRepo)
+	successfulConsentController := controllers.NewSuccessfulConsentRatioController(successfulConsentService)
+
+	// Register ServiceProvider routes
+	routes.RegisterServiceProviderRoutes(r, successfulConsentController)
+
+	// Start the server on port 8080
 	r.Run(":8080")
 }

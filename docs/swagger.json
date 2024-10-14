@@ -1,12 +1,65 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is the API for fetching client and KYC request data",
-        "title": "Client and KYCRequest API",
+        "description": "This is the API for fetching client, KYC request, and ServiceProvider consent ratio data",
+        "title": "Client, KYCRequest, and ServiceProvider API",
         "contact": {},
         "version": "1.0"
     },
     "paths": {
+        "/api/ServiceProvider/SuccessfulConsentRatioController": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get successful consent ratios by day, week, or month",
+                "tags": [
+                    "ServiceProvider"
+                ],
+                "summary": "Get successful consent ratios",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Range (day, week, month)",
+                        "name": "range",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/clients/new": {
             "get": {
                 "security": [
