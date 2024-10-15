@@ -7,7 +7,7 @@
         "version": "1.0"
     },
     "paths": {
-        "/api/ServiceProvider/SuccessfulConsentRatioController": {
+        "/api/ServiceProvider/SuccessfulConsentRatio": {
             "get": {
                 "security": [
                     {
@@ -32,8 +32,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.ConsentRatioResponse"
+                            }
                         }
                     },
                     "400": {
@@ -226,6 +228,21 @@
         }
     },
     "definitions": {
+        "controllers.ConsentRatioResponse": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "merchants": {
+                    "description": "Updated to reference repositories package",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/repositories.ConsentRatioData"
+                    }
+                }
+            }
+        },
         "controllers.LoginRequest": {
             "type": "object",
             "properties": {
@@ -258,6 +275,20 @@
                 },
                 "range": {
                     "type": "string"
+                }
+            }
+        },
+        "repositories.ConsentRatioData": {
+            "type": "object",
+            "properties": {
+                "merchantId": {
+                    "type": "integer"
+                },
+                "successfulConsents": {
+                    "type": "integer"
+                },
+                "totalClients": {
+                    "type": "integer"
                 }
             }
         }

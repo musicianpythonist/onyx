@@ -1,21 +1,29 @@
 package controllers
 
 import (
+	"client/repositories"
 	"client/services"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// SuccessfulConsentRatioController defines the controller structure
-type SuccessfulConsentRatioController struct {
+// SuccessfulConsentRatio defines the controller structure
+type SuccessfulConsentRatio struct {
 	service services.SuccessfulConsentRatioServiceInterface
 }
 
-// NewSuccessfulConsentRatioController creates a new instance of the controller
-func NewSuccessfulConsentRatioController(service services.SuccessfulConsentRatioServiceInterface) *SuccessfulConsentRatioController {
-	return &SuccessfulConsentRatioController{service: service}
+// NewSuccessfulConsentRatio creates a new instance of the controller
+func NewSuccessfulConsentRatio(service services.SuccessfulConsentRatioServiceInterface) *SuccessfulConsentRatio {
+	return &SuccessfulConsentRatio{service: service}
+}
+
+// ConsentRatioResponse represents the format for the final API response
+type ConsentRatioResponse struct {
+	Date      string                          `json:"date"`
+	Merchants []repositories.ConsentRatioData `json:"merchants"` // Updated to reference repositories package
 }
 
 // GetSuccessfulConsentRatio handles the API request to get consent ratios
@@ -24,50 +32,51 @@ func NewSuccessfulConsentRatioController(service services.SuccessfulConsentRatio
 // @Tags ServiceProvider
 // @Security ApiKeyAuth
 // @Param range query string true "Range (day, week, month)"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {array} ConsentRatioResponse
 // @Failure 400 {object} map[string]interface{} "error"
 // @Failure 401 {object} map[string]interface{} "Invalid or expired token"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /api/ServiceProvider/SuccessfulConsentRatioController [get]
-func (c *SuccessfulConsentRatioController) GetSuccessfulConsentRatio(ctx *gin.Context) {
-	// Retrieve the 'range' query parameter
+// @Router /api/ServiceProvider/SuccessfulConsentRatio [get]
+func (c *SuccessfulConsentRatio) GetSuccessfulConsentRatio(ctx *gin.Context) {
+	// Get the date range
 	dateRange := ctx.Query("range")
 
-	if dateRange == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "query param 'range' is required"})
-		return
-	}
+	// Fetch data from the service
+	var result map[string][]repositories.ConsentRatioData
+	var err error
 
 	switch dateRange {
 	case "day":
-		// Get today's data
-		data, err := c.service.GetSuccessfulConsentRatioByDay(time.Now())
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		ctx.JSON(http.StatusOK, data)
-
+		result, err = c.service.GetSuccessfulConsentRatioByDay(time.Now())
 	case "week":
-		// Get last 7 days data
-		data, err := c.service.GetSuccessfulConsentRatioByWeek()
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		ctx.JSON(http.StatusOK, data)
-
+		result, err = c.service.GetSuccessfulConsentRatioByWeek()
 	case "month":
-		// Get last 30 days data
-		data, err := c.service.GetSuccessfulConsentRatioByMonth()
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		ctx.JSON(http.StatusOK, data)
-
+		result, err = c.service.GetSuccessfulConsentRatioByMonth()
 	default:
-		// Invalid range provided
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid range value. Use 'day', 'week', or 'month'."})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid range value"})
+		return
 	}
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Sort the dates before responding
+	var dates []string
+	for date := range result {
+		dates = append(dates, date)
+	}
+	sort.Strings(dates) // Ensure the dates are in ascending order
+
+	// Build the response
+	var response []ConsentRatioResponse
+	for _, date := range dates {
+		response = append(response, ConsentRatioResponse{
+			Date:      date,
+			Merchants: result[date],
+		})
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }

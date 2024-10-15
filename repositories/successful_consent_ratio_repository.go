@@ -44,6 +44,7 @@ func (r *SuccessfulConsentRatioRepository) GetSuccessfulConsentRatioByDay(date t
 		Select("MerchantId, CONVERT(date, CreateDate) as Date, COUNT(DISTINCT ClientId) as TotalClients, COUNT(DISTINCT CASE WHEN ConsentToServiceProviderStatusId = 2 THEN ClientId END) as SuccessfulConsents").
 		Where("CONVERT(date, CreateDate) = ?", date.Format("2006-01-02")).
 		Group("MerchantId, CONVERT(date, CreateDate)").
+		Order("CONVERT(date, CreateDate) ASC"). // Sort by date (even though it's a single day)
 		Find(&results).Error
 	if err != nil {
 		return nil, err
@@ -69,7 +70,7 @@ func (r *SuccessfulConsentRatioRepository) GetSuccessfulConsentRatioByRange(star
 		Select("MerchantId, CONVERT(date, CreateDate) as Date, COUNT(DISTINCT ClientId) as TotalClients, COUNT(DISTINCT CASE WHEN ConsentToServiceProviderStatusId = 2 THEN ClientId END) as SuccessfulConsents").
 		Where("CONVERT(date, CreateDate) BETWEEN ? AND ?", startDate.Format("2006-01-02"), endDate.Format("2006-01-02")).
 		Group("MerchantId, CONVERT(date, CreateDate)").
-		Order("CONVERT(date, CreateDate) ASC").
+		Order("Date ASC"). // Ensure ordering by date
 		Find(&results).Error
 	if err != nil {
 		return nil, err

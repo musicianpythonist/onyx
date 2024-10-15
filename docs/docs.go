@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/ServiceProvider/SuccessfulConsentRatioController": {
+        "/api/ServiceProvider/SuccessfulConsentRatio": {
             "get": {
                 "security": [
                     {
@@ -40,8 +40,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.ConsentRatioResponse"
+                            }
                         }
                     },
                     "400": {
@@ -234,6 +236,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.ConsentRatioResponse": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "merchants": {
+                    "description": "Updated to reference repositories package",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/repositories.ConsentRatioData"
+                    }
+                }
+            }
+        },
         "controllers.LoginRequest": {
             "type": "object",
             "properties": {
@@ -266,6 +283,20 @@ const docTemplate = `{
                 },
                 "range": {
                     "type": "string"
+                }
+            }
+        },
+        "repositories.ConsentRatioData": {
+            "type": "object",
+            "properties": {
+                "merchantId": {
+                    "type": "integer"
+                },
+                "successfulConsents": {
+                    "type": "integer"
+                },
+                "totalClients": {
+                    "type": "integer"
                 }
             }
         }

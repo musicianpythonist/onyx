@@ -55,7 +55,7 @@ func main() {
 	// Initialize the repository, service, and controller for successful consent ratio
 	successfulConsentRepo := repositories.NewSuccessfulConsentRatioRepository(db)
 	successfulConsentService := services.NewSuccessfulConsentRatioService(successfulConsentRepo)
-	successfulConsentController := controllers.NewSuccessfulConsentRatioController(successfulConsentService)
+	successfulConsentController := controllers.NewSuccessfulConsentRatio(successfulConsentService)
 
 	// Register ServiceProvider routes
 	routes.RegisterServiceProviderRoutes(r, successfulConsentController)

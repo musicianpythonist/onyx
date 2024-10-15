@@ -26,10 +26,10 @@ func RegisterKYCRequestRoutes(router *gin.Engine, kycRequestController *controll
 }
 
 // RegisterServiceProviderRoutes registers the routes for the Service Provider API
-func RegisterServiceProviderRoutes(router *gin.Engine, consentController *controllers.SuccessfulConsentRatioController) {
+func RegisterServiceProviderRoutes(router *gin.Engine, consentController *controllers.SuccessfulConsentRatio) {
 	serviceProviderRoutes := router.Group("/api/ServiceProvider")
 	{
 		serviceProviderRoutes.Use(middleware.JWTMiddleware()) // Protect with JWT
-		serviceProviderRoutes.GET("/SuccessfulConsentRatioController", consentController.GetSuccessfulConsentRatio)
+		serviceProviderRoutes.GET("/SuccessfulConsentRatio", consentController.GetSuccessfulConsentRatio)
 	}
 }

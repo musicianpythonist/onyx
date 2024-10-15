@@ -30,7 +30,7 @@ func (s *SuccessfulConsentRatioService) GetSuccessfulConsentRatioByDay(date time
 // GetSuccessfulConsentRatioByWeek retrieves the consent ratio for the last 7 days
 func (s *SuccessfulConsentRatioService) GetSuccessfulConsentRatioByWeek() (map[string][]repositories.ConsentRatioData, error) {
 	endDate := time.Now()
-	startDate := endDate.AddDate(0, 0, -7)
+	startDate := endDate.AddDate(0, 0, -6)
 	return s.repository.GetSuccessfulConsentRatioByRange(startDate, endDate)
 }
 
