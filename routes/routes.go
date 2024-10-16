@@ -18,7 +18,7 @@ func RegisterClientRoutes(router *gin.Engine, clientController *controllers.Clie
 
 // RegisterKYCRequestRoutes registers the routes for KYC requests
 func RegisterKYCRequestRoutes(router *gin.Engine, kycRequestController *controllers.KYCRequestController) {
-	kycRoutes := router.Group("/api/kyc")
+	kycRoutes := router.Group("/api/KYC")
 	{
 		kycRoutes.Use(middleware.JWTMiddleware())
 		kycRoutes.GET("/request", kycRequestController.GetKYCRequestsByRange)
@@ -31,5 +31,14 @@ func RegisterServiceProviderRoutes(router *gin.Engine, consentController *contro
 	{
 		serviceProviderRoutes.Use(middleware.JWTMiddleware()) // Protect with JWT
 		serviceProviderRoutes.GET("/SuccessfulConsentRatio", consentController.GetSuccessfulConsentRatio)
+	}
+}
+
+// RegisterKYCRoutes registers the routes for the KYC Ratio API
+func RegisterKYCRoutes(router *gin.Engine, kycRatioController *controllers.SuccessfulKYCRatio) {
+	kycRatioRoutes := router.Group("/api/KYC")
+	{
+		kycRatioRoutes.Use(middleware.JWTMiddleware()) // Protect with JWT
+		kycRatioRoutes.GET("/SuccessfulKYCRatio", kycRatioController.GetSuccessfulKYCRatio)
 	}
 }

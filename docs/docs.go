@@ -15,6 +15,120 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/KYC/SuccessfulKYCRatio": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get aggregated KYC request ratios by day, week, or month",
+                "tags": [
+                    "KYCRequest"
+                ],
+                "summary": "Get successful KYC ratios",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Range (day, week, month)",
+                        "name": "range",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.KYCRatioResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/KYC/request": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns the number of KYC requests with a specific status (e.g., submitted) for the given date range (day, week, month)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KYCRequest"
+                ],
+                "summary": "Get KYC requests",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Status ID of the KYC request",
+                        "name": "status_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Date Range (day, week, month)",
+                        "name": "date_range",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.KYCRequestsRangeResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status ID or date range",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/ServiceProvider/SuccessfulConsentRatio": {
             "get": {
                 "security": [
@@ -116,60 +230,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/kyc/request": {
-            "get": {
-                "description": "Returns the number of KYC requests with a specific status (e.g., submitted) for the given date range (day, week, month)",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "KYC Requests"
-                ],
-                "summary": "Get KYC requests",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Status ID of the KYC request",
-                        "name": "status_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Date Range (day, week, month)",
-                        "name": "date_range",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.KYCRequestsRangeResponseDTO"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid status ID or date range",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/login": {
             "post": {
                 "description": "Validates the API key and returns a JWT token for authentication",
@@ -251,6 +311,22 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.KYCRatioResponse": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "stats": {
+                    "description": "Aggregated data for the date",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/repositories.KYCRequestRatioData"
+                        }
+                    ]
+                }
+            }
+        },
         "controllers.LoginRequest": {
             "type": "object",
             "properties": {
@@ -296,6 +372,23 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "totalClients": {
+                    "type": "integer"
+                }
+            }
+        },
+        "repositories.KYCRequestRatioData": {
+            "type": "object",
+            "properties": {
+                "clientId": {
+                    "type": "integer"
+                },
+                "status15Requests": {
+                    "type": "integer"
+                },
+                "status5Requests": {
+                    "type": "integer"
+                },
+                "totalRequests": {
                     "type": "integer"
                 }
             }

@@ -60,6 +60,14 @@ func main() {
 	// Register ServiceProvider routes
 	routes.RegisterServiceProviderRoutes(r, successfulConsentController)
 
+	// Initialize the repository, service, and controller for successful KYC ratio
+	successfulKYCRatioRepo := repositories.NewSuccessfulKYCRatioRepository(db)
+	successfulKYCRatioService := services.NewSuccessfulKYCRatioService(successfulKYCRatioRepo)
+	successfulKYCRatioController := controllers.NewSuccessfulKYCRatio(successfulKYCRatioService)
+
+	// Register KYC ratio routes
+	routes.RegisterKYCRoutes(r, successfulKYCRatioController)
+
 	// Start the server on port 8080
 	r.Run(":8080")
 }

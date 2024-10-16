@@ -20,14 +20,15 @@ func NewKYCRequestController(service services.KYCRequestService) *KYCRequestCont
 // GetKYCRequestsByRange returns KYC requests filtered by statusId and date range
 // @Summary Get KYC requests
 // @Description Returns the number of KYC requests with a specific status (e.g., submitted) for the given date range (day, week, month)
-// @Tags KYC Requests
+// @Tags KYCRequest
 // @Produce json
+// @Security ApiKeyAuth
 // @Param status_id query int true "Status ID of the KYC request"
 // @Param date_range query string true "Date Range (day, week, month)"
 // @Success 200 {object} dto.KYCRequestsRangeResponseDTO
 // @Failure 400 {object} map[string]string "Invalid status ID or date range"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/kyc/request [get] // Updated route path in the Swagger annotation
+// @Router /api/KYC/request [get]
 func (c *KYCRequestController) GetKYCRequestsByRange(ctx *gin.Context) {
 	statusIdParam := ctx.Query("status_id")
 	statusId, err := strconv.Atoi(statusIdParam)

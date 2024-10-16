@@ -9,6 +9,15 @@ definitions:
           $ref: '#/definitions/repositories.ConsentRatioData'
         type: array
     type: object
+  controllers.KYCRatioResponse:
+    properties:
+      date:
+        type: string
+      stats:
+        allOf:
+        - $ref: '#/definitions/repositories.KYCRequestRatioData'
+        description: Aggregated data for the date
+    type: object
   controllers.LoginRequest:
     properties:
       api_key:
@@ -41,6 +50,17 @@ definitions:
       totalClients:
         type: integer
     type: object
+  repositories.KYCRequestRatioData:
+    properties:
+      clientId:
+        type: integer
+      status5Requests:
+        type: integer
+      status15Requests:
+        type: integer
+      totalRequests:
+        type: integer
+    type: object
 info:
   contact: {}
   description: This is the API for fetching client, KYC request, and ServiceProvider
@@ -48,6 +68,81 @@ info:
   title: Client, KYCRequest, and ServiceProvider API
   version: "1.0"
 paths:
+  /api/KYC/SuccessfulKYCRatio:
+    get:
+      description: Get aggregated KYC request ratios by day, week, or month
+      parameters:
+      - description: Range (day, week, month)
+        in: query
+        name: range
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.KYCRatioResponse'
+            type: array
+        "400":
+          description: error
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid or expired token
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get successful KYC ratios
+      tags:
+      - KYCRequest
+  /api/KYC/request:
+    get:
+      description: Returns the number of KYC requests with a specific status (e.g.,
+        submitted) for the given date range (day, week, month)
+      parameters:
+      - description: Status ID of the KYC request
+        in: query
+        name: status_id
+        required: true
+        type: integer
+      - description: Date Range (day, week, month)
+        in: query
+        name: date_range
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.KYCRequestsRangeResponseDTO'
+        "400":
+          description: Invalid status ID or date range
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get KYC requests
+      tags:
+      - KYCRequest
   /api/ServiceProvider/SuccessfulConsentRatio:
     get:
       description: Get successful consent ratios by day, week, or month
@@ -114,43 +209,6 @@ paths:
       summary: Get new clients
       tags:
       - Clients
-  /api/kyc/request:
-    get:
-      description: Returns the number of KYC requests with a specific status (e.g.,
-        submitted) for the given date range (day, week, month)
-      parameters:
-      - description: Status ID of the KYC request
-        in: query
-        name: status_id
-        required: true
-        type: integer
-      - description: Date Range (day, week, month)
-        in: query
-        name: date_range
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.KYCRequestsRangeResponseDTO'
-        "400":
-          description: Invalid status ID or date range
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Get KYC requests
-      tags:
-      - KYC Requests
   /api/login:
     post:
       consumes:
